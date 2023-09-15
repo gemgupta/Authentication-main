@@ -17,6 +17,34 @@ const AuthForm = () => {
     const enteredPassword = passwordRef.current.value;
     setIsLoading(true);
     if (isLogin) {
+      fetch(
+        "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyD2_8ylNqNkFKFJDsH3IJCOpXInT_ZoEz0",
+        {
+          method: "POST",
+          body: JSON.stringify({
+            email: enteredEmail,
+            password: enteredPassword,
+            returnSecureToken: true,
+          }),
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      ).then((res) => {
+        if (!res.ok) {
+          return res.json().then((data) => {
+            const errorMessage = data.error.message;
+            alert(errorMessage);
+            setIsLoading(false);
+          });
+        } else {
+          return res.json().then((data) => {
+            console.log(data.idToken);
+            alert("Welcome " + data.email);
+            setIsLoading(false);
+          });
+        }
+      });
     } else {
       fetch(
         "https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=AIzaSyD2_8ylNqNkFKFJDsH3IJCOpXInT_ZoEz0",
@@ -36,10 +64,12 @@ const AuthForm = () => {
           return res.json().then((data) => {
             const errorMessage = data.error.message;
             alert(errorMessage);
+            setIsLoading(false);
           });
         } else {
           alert("Account Created Successfully");
           setIsLoading(false);
+          setIsLogin((prevState) => !prevState);
         }
       });
     }
@@ -58,7 +88,7 @@ const AuthForm = () => {
           <input type="password" id="password" required ref={passwordRef} />
         </div>
         <div className={classes.actions}>
-          {isLodaing && <p className={classes.toggle}>Creating Account...</p>}
+          {isLodaing && <p className={classes.toggle}>Loading...</p>}
           {!isLodaing && (
             <button type="submit" className="button">
               {!isLogin ? "Create account" : "Login"}
