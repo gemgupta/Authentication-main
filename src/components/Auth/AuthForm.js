@@ -1,12 +1,16 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useContext } from "react";
+import { useHistory } from 'react-router-dom';
 
 import classes from "./AuthForm.module.css";
+import AuthContext from "../../store/Context";
 
 const AuthForm = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isLodaing, setIsLoading] = useState(false);
   const emailRef = useRef();
   const passwordRef = useRef();
+  const ctx = useContext(AuthContext)
+  const History= useHistory()
 
   const switchAuthModeHandler = () => {
     setIsLogin((prevState) => !prevState);
@@ -16,7 +20,7 @@ const AuthForm = () => {
     const enteredEmail = emailRef.current.value;
     const enteredPassword = passwordRef.current.value;
     setIsLoading(true);
-    if (isLogin) {
+    if (isLogin && !ctx.isLoggedIn) {
       fetch(
         "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyD2_8ylNqNkFKFJDsH3IJCOpXInT_ZoEz0",
         {
@@ -34,14 +38,16 @@ const AuthForm = () => {
         if (!res.ok) {
           return res.json().then((data) => {
             const errorMessage = data.error.message;
-            alert(errorMessage);
             setIsLoading(false);
+            alert(errorMessage);
           });
         } else {
           return res.json().then((data) => {
-            console.log(data.idToken);
-            alert("Welcome " + data.email);
+            // console.log(data.idToken);
+            ctx.Login(data.idToken)
             setIsLoading(false);
+            History.replace('/')
+            alert("Welcome " + data.email);
           });
         }
       });
@@ -63,12 +69,12 @@ const AuthForm = () => {
         if (!res.ok) {
           return res.json().then((data) => {
             const errorMessage = data.error.message;
-            alert(errorMessage);
             setIsLoading(false);
+            alert(errorMessage);
           });
         } else {
-          alert("Account Created Successfully");
           setIsLoading(false);
+          alert("Account Created Successfully");
           setIsLogin((prevState) => !prevState);
         }
       });
@@ -88,12 +94,12 @@ const AuthForm = () => {
           <input type="password" id="password" required ref={passwordRef} />
         </div>
         <div className={classes.actions}>
-          {isLodaing && <p className={classes.toggle}>Loading...</p>}
           {!isLodaing && (
             <button type="submit" className="button">
               {!isLogin ? "Create account" : "Login"}
             </button>
           )}
+          {isLodaing && <p className={classes.toggle}>Loading...</p>}
           <button
             type="button"
             className={classes.toggle}
