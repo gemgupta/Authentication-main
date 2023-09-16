@@ -43,7 +43,7 @@ const AuthForm = () => {
           });
         } else {
           return res.json().then((data) => {
-            // console.log(data.idToken);
+            console.log(data);
             ctx.Login(data.idToken);
             setIsLoading(false);
             History.replace("/");
