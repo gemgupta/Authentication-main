@@ -47,7 +47,7 @@ const AuthForm = () => {
             ctx.Login(data.idToken);
             setIsLoading(false);
             History.replace("/");
-            alert("Welcome " + data.email);
+           
           });
         }
       });
@@ -74,7 +74,7 @@ const AuthForm = () => {
           });
         } else {
           setIsLoading(false);
-          alert("Account Created Successfully");
+         
           setIsLogin((prevState) => !prevState);
         }
       });
